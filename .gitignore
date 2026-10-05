@@ -1,0 +1,15 @@
+# Virtualenv
+.venv/
+__pycache__/
+*.pyc
+
+# Local settings and personal files
+config.toml
+PERSONAL_SETTINGS.md
+CLAUDE.md
+log/
+.claude/
+
+# Model files (downloaded, see README)
+*.onnx
+*.bin

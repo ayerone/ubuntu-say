@@ -1,0 +1,17 @@
+# Top-level dependencies, deliberately installed one at a time instead of
+# via `misaki[en]` -- that extra unconditionally pulls in
+# spacy-curated-transformers -> torch, for an optional G2P mode
+# (trf=True) this project never uses. See ENVIRONMENT.md for why.
+#
+# For an exact, fully-pinned reproduction of the tested environment, use
+# requirements-lock.txt instead.
+numpy
+onnxruntime
+kokoro-onnx
+misaki
+espeakng-loader
+num2words
+phonemizer-fork
+spacy
+click
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl

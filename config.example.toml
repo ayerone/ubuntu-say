@@ -1,0 +1,8 @@
+# Copy to config.toml and edit. Every setting is optional; these are the defaults.
+# config.toml is read when the daemon starts, so kill the daemon after editing it.
+
+# Kokoro ONNX model file, relative to this project or an absolute path.
+model = "kokoro-v1.0.onnx"
+
+# Voices file that matches the model.
+voices = "voices-v1.0.bin"
