@@ -2,6 +2,8 @@
 
 Local text-to-speech for Ubuntu. Hear highlighted text read aloud, launched by a keyboard shortcut. Real-time performance on CPU.
 
+Check out the dual to this project (speech-to-text) [ubuntu-hear](https://github.com/ayerone/ubuntu-hear).
+
 ## Details
 
 Uses [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) through ONNX Runtime.
@@ -73,6 +75,10 @@ I quantized my own build of Kokoro (mixed precision, with most of the model in i
 - `read_selection.sh` reads the primary selection with `wl-paste` and runs `say_client.py`, which sends the text over a Unix socket (`~/.cache/say-selection/daemon.sock`) and starts the daemon first if needed. While the daemon loads, espeak-ng announces the startup.
 - `say_daemon.py` keeps the model and misaki's G2P loaded and speaks queued text in order.
 - `say_onnx.py` does the synthesis. Text goes to phonemes through misaki, not kokoro-onnx's own phonemizer, so numbers and dates read naturally ("1,234" becomes "one thousand two hundred thirty-four"). Audio plays through `aplay`.
+
+## Pro-tip: Claude Code integration
+
+I added a `Stop` hook (response finished) to my claude code that summarizes the response and then sends it to the TTS daemon. It's nice to get a spoken gist of an answer once a turn completes.
 
 ## Limitations
 
