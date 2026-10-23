@@ -52,11 +52,45 @@ def play_segment(pcm, sr):
     )
 
 
+MAX_SEGMENT_CHARS = 250    # sentences longer than this are cut into pieces
+MAX_TOKEN_CHARS = 30       # space-free strings longer than this are announced, not read
+
+
+def cut_long(sentence):
+    """Cut an over-long sentence at the last comma, else the last space, before the limit."""
+    pieces = []
+    while len(sentence) > MAX_SEGMENT_CHARS:
+        window = sentence[:MAX_SEGMENT_CHARS + 1]
+        cut = window.rfind(", ") + 1
+        if cut <= 0:
+            cut = window.rfind(" ")
+        pieces.append(sentence[:cut].strip())
+        sentence = sentence[cut:].strip()
+    pieces.append(sentence)
+    return pieces
+
+
 def split_sentences(text):
-    """Break a block of text into sentences."""
-    text = " ".join(text.split())
-    marked = re.sub(r"([.!?]+[\"')\]]*)\s+", r"\1\n", text)
-    return [p for p in marked.split("\n") if p.strip()]
+    """Break a block of text into sentences.
+
+    A blank line (two or more consecutive newlines) ends a segment just as
+    terminal punctuation does, so unpunctuated lists and headings are not
+    run together. Sentences over MAX_SEGMENT_CHARS are cut by cut_long, and
+    space-free strings over MAX_TOKEN_CHARS are replaced by a spoken note.
+    """
+    sentences = []
+    for block in re.split(r"\r?\n\s*\r?\n", text):
+        block = " ".join(block.split())
+        block = re.sub(
+            rf"\S{{{MAX_TOKEN_CHARS + 1},}}",
+            lambda m: f"dropping a continuous string of {len(m.group())} characters long",
+            block,
+        )
+        marked = re.sub(r"([.!?]+[\"')\]]*)\s+", r"\1\n", block)
+        for p in marked.split("\n"):
+            if p.strip():
+                sentences.extend(cut_long(p))
+    return sentences
 
 
 def load_kokoro():
