@@ -1,12 +1,12 @@
 # ubuntu-say
 
-Hotkey text-to-speech for Ubuntu. Highlight text in any window, press a shortcut, and it is read aloud. Synthesis runs locally with [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) through ONNX Runtime, on CPU only, with no network use after the model download.
+Hotkey text-to-speech for Ubuntu. Read highlighted text aloud. Synthesis runs locally on CPU with [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) through ONNX Runtime.
 
-The first press after login starts a small background daemon that loads the model. The daemon stays resident, so every later press only pays for synthesis. Pressing the shortcut while it is still talking queues the new text.
+The first Hotkey press after login starts a background daemon (python process) that loads the model. The daemon stays resident, so subsequent presses get a warm start. Pressing the shortcut while it is still talking queues the new text.
 
 ## Tested on
 
-Ubuntu 24.04, GNOME on Wayland, Intel N150 (4 cores, no GPU). See `ENVIRONMENT.md` for exact versions. The selection is read with `wl-paste`, so an X11 session needs `xclip -o -selection primary` substituted in `read_selection.sh` (untested).
+Ubuntu 24.04, GNOME on Wayland, Mini PC (Intel N150). See `ENVIRONMENT.md` for exact versions. The selection is read with `wl-paste`, so an X11 session needs `xclip -o -selection primary` substituted in `read_selection.sh` (untested).
 
 ## Install
 
@@ -25,7 +25,7 @@ Ubuntu 24.04, GNOME on Wayland, Intel N150 (4 cores, no GPU). See `ENVIRONMENT.m
 
    The daemon looks for `.venv/bin/python` in the project folder, so keep the venv there.
 
-   `requirements.txt` lists the top-level packages and explains why `misaki[en]` is avoided (it pulls in PyTorch, which this project never uses). `requirements-lock.txt` is the exact tested set.
+   `requirements.txt` lists the top-level packages and explains why `misaki[en]` is avoided (it pulls in PyTorch, which this project avoids for the large download). `requirements-lock.txt` is the exact tested set.
 
 3. Model files, from the [kokoro-onnx release](https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.0):
 
@@ -34,11 +34,11 @@ Ubuntu 24.04, GNOME on Wayland, Intel N150 (4 cores, no GPU). See `ENVIRONMENT.m
    curl -LO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin
    ```
 
-4. Bind a global keyboard shortcut (GNOME Settings, Keyboard, Custom Shortcuts) to the absolute path of `read_selection.sh` in this checkout.
+4. Bind a global keyboard shortcut (GNOME Settings, Keyboard, Custom Shortcuts) to the absolute path of `read_selection.sh` in this checkout. I chose ctrl-alt-c (reminiscent of ctrl-c).
 
 ## Usage
 
-Select text anywhere and press the shortcut. Selecting one of these command words and pressing the shortcut runs it instead of speaking it:
+Select text anywhere and press the shortcut. Selecting just the text of any of these command words and pressing the shortcut runs it instead of speaking it:
 
 | Word | Effect |
 | --- | --- |
@@ -62,7 +62,7 @@ The daemon reads the file at startup, so kill it (select `kill` and press the sh
 
 ## Quantized model
 
-I quantized my own build of Kokoro (mixed precision, with most of the model in int8 and the last few convolutions left in fp32) and use it day to day because it should run faster on a CPU than the stock model. I may upload it to GitHub at some point. If I do, this section will link to it, and you can switch to it by pointing `model` in `config.toml` at the file. Until then, the stock model from the install steps is what this repo expects.
+I quantized my own build of Kokoro (mixed precision, with most of the model in int8 and the last few convolutions left in fp32) to run faster on my wimpy CPU. You can use any TTS model you want by pointing `model` in `config.toml` at your own file.
 
 ## How it works
 
@@ -73,4 +73,4 @@ I quantized my own build of Kokoro (mixed precision, with most of the model in i
 ## Limitations
 
 - GNOME on Wayland only, as tested.
-- The first press after login waits a few seconds while the model loads.
+- The first press after login takes a few seconds for the model to load.
