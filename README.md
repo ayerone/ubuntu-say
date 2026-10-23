@@ -1,8 +1,12 @@
 # ubuntu-say
 
-Hotkey text-to-speech for Ubuntu. Read highlighted text aloud. Synthesis runs locally on CPU with [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) through ONNX Runtime.
+Local text-to-speech for Ubuntu. Hear highlighted text read aloud, launched by a keyboard shortcut. Real-time performance on CPU.
 
-The first Hotkey press after login starts a background daemon (python process) that loads the model. The daemon stays resident, so subsequent presses get a warm start. Pressing the shortcut while it is still talking queues the new text.
+## Details
+
+Uses [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) through ONNX Runtime.
+
+The first Hotkey (keyboard shortcut) press after login starts a background daemon (python process) that loads the model. Subsequent presses get a warm start (daemon already running). Pressing the shortcut while it is still talking queues the new text.
 
 ## Tested on
 
